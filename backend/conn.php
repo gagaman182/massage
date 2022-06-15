@@ -1,6 +1,6 @@
 <?php
 // 4.3
-$servername = "localhost";
+$servername = "192.168.4.3";
 $username = "root";
 $password = "1234";
 $dbname = "calendar";
