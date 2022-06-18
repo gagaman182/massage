@@ -7,16 +7,16 @@ $data = json_decode(file_get_contents('php://input'), true);
 include 'conn.php';
 
 // $epidem_report_quid = '55125500';
-$starttime = $data['starttime'];
-$endtime = $data['endtime'];
+
+
 $id = $data['id'];
-$state = $data['state'];
 
 
 
 
 
-$sql = "SELECT * from eventpt where (start = '" . $starttime . "' or end = '" . $endtime . "')  and resourceId = '" . $id . "' and state = '" . $state . "'
+
+$sql = "SELECT * from eventpt where   id = '" . $id . "' 
       ";
 
 

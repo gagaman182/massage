@@ -21,8 +21,6 @@
           />
         </v-card-text>
       </v-card>
-
-      <!-- <caa /> -->
     </v-col>
   </v-row>
 </template>
@@ -47,6 +45,7 @@ export default {
       doctor: '',
       hn: '1/49 -test ',
       idcard: '3999999000000',
+      id_delete: '',
       datetime_check: '',
       message: '',
       calendarOptions: {
@@ -109,12 +108,36 @@ export default {
           // {
           //   resourceId: '1',
           //   id: '1111',
-          //   title: 'ทดสอบ',
-          //   start: '2022-06-13 08:30:00',
-          //   end: '2022-06-13 09:40:00',
+          //   //title: 'ทดสอบ',
+          //   title: 'Rs',
+          //   start: '2022-06-18 08:30:00',
+          //   end: '2022-06-18 16:40:00',
+          //   // backgroundColor: 'red',
+          //   // borderColor: 'black',
+          //   // textColor: 'blue',
+          //   // color: 'black',
           // },
         ],
+        eventContent: function (arg) {
+          console.log(arg)
 
+          // let italicEl = document.createElement('i')
+          // if (arg.event.extendedProps.isUrgent) {
+          //   italicEl.innerHTML = 'urgent event'
+          // } else {
+          //   italicEl.innerHTML = 'normal event'
+          // }
+          // let arrayOfDomNodes = [italicEl]
+          // return { domNodes: arrayOfDomNodes }
+        },
+        // eventClassNames: function (arg) {
+        //   console.log(arg)
+        //   if (arg.event.extendedProps.isUrgent) {
+        //     return ['urgent']
+        //   } else {
+        //     return ['normal']
+        //   }
+        // },
         resources: [
           // { id: '1', title: '1111' },
           // { id: '2', title: '2222' },
@@ -140,6 +163,7 @@ export default {
     this.timer = setInterval(this.refresh_settimeout, 5000)
   },
   methods: {
+    //เลือกช่องว่าง
     clickevent: function (arg) {
       //alert(moment(arg.dateStr).locale('th').format('Y-M-D HH:mm:ss'))
       console.log(arg)
@@ -148,8 +172,9 @@ export default {
         alert('ไม่ได้')
       }
     },
+    //เลือกช่องว่าง
     selectevent: function (info) {
-      console.log(info)
+      // console.log(info)
       //   start,
       // end,
       // startStr,
@@ -162,118 +187,218 @@ export default {
       // alert(moment(info.start).locale('th').format('HH:mm:ss'))
       // alert(moment(info.end).locale('th').format('HH:mm:ss'))
       //alert(moment(info.start).locale('th').format('Y-M-D HH:mm:ss'))
+
       //ตรวจสอบก่อนว่ามีการจองในช่วงเวลานี้แล้วยัง
-      this.check_event(
-        moment(info.start).locale('th').format('Y-M-D HH:mm:ss'),
-        info.resource.id
-      )
-      //คืนค่ามาเป็น this.datetime_check จาก function check_event ส่งค่า เวลากับ id คนนวดไปเช็ค
-      if (!this.datetime_check) {
-        if (
-          moment(info.start).locale('th').format('HH:mm:ss') != '12:00:00'
-          //  &&
-          // moment().locale('th').format('HH:mm:ss') <=
-          // moment(info.start).locale('th').format('HH:mm:ss')
-        ) {
-          // alert('ไม่ได้')
-          //console.log(info.resource)
-          this.$swal({
-            title: 'การจองสิทธินวด',
-            text:
-              'ท่านต้องการจองสิทธิช่วงเวลา' +
-              moment(info.start).locale('th').format('HH:mm') +
-              ' น ' +
-              ' ถึง ' +
-              moment(info.end).locale('th').format('HH:mm') +
-              ' น หรือไม่',
-            footer:
-              '<h3>' +
-              'HN' +
-              ' : ' +
-              this.hn +
-              '   ' +
-              'เลขบัตรประชาชน' +
-              ' : ' +
-              this.idcard +
-              '</h3>',
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonText: 'จองสิทธิ',
-            confirmButtonColor: '#069A8E',
-            cancelButtonText: 'ยกเลิก',
-            cancelButtonColor: '#d33',
-          }).then((result) => {
-            if (result.isConfirmed) {
-              // alert('title:' + this.hn)
-              // alert(
-              //   'start:' +
-              //     moment(info.start).locale('th').format('Y-M-D HH:mm:ss')
-              // )
-              // alert(
-              //   'end:' + moment(info.end).locale('th').format('Y-M-D HH:mm:ss')
-              // )
-              // alert('resourceid:' + info.resource.id)
-              // alert('idcard:' + this.idcard)
-              // alert(JSON.stringify(info))
-              // this.event_add_data()
+      // this.check_event(
+      //   moment(info.start).locale('th').format('Y-M-D HH:mm:ss'),
+      //   info.resource.id
+      // )
+      // alert(moment(info.start).locale('th').format('Y-M-D HH:mm:ss'))
+      // alert(moment(info.end).locale('th').format('Y-M-D HH:mm:ss'))
+      // alert(info.resource.id)
 
-              axios
-                .post(`${this.$axios.defaults.baseURL}event_add.php`, {
-                  hn: this.hn,
-                  start: moment(info.start)
-                    .locale('th')
-                    .format('Y-M-D HH:mm:ss'),
-                  end: moment(info.end).locale('th').format('Y-M-D HH:mm:ss'),
-                  resourceid: info.resource.id,
-                  idcard: this.idcard,
-                  state: '1', //สถานะ 1 ปกติ 2 ลบ
-                })
-                .then((response) => {
-                  this.message = response.data
-                  if (this.message[0].message === 'เพิ่มข้อมูลสำเร็จ') {
-                    this.$swal({
-                      title: 'สถานะการเพิ่ม',
-                      text: this.message[0].message,
-                      icon: 'success',
-                      confirmButtonText: 'ตกลง',
-                    })
-                    this.fecth_event()
-                  } else {
-                    this.$swal({
-                      title: 'สถานะการเพิ่ม',
-                      text: this.message[0].message,
-                      icon: 'error',
-                      confirmButtonText: 'ตกลง',
-                    })
-                  }
-                })
-            }
-          })
-        } else {
-          this.$swal({
-            title: 'แจ้งเตือน',
-            text: 'ไม่สามรถนัดได้ในเวลา 12.00 น หรือ เวลาปัจจุบันเกินช่วงเวลาที่จะนัด',
-            icon: 'error',
-            confirmButtonText: 'ตกลง',
-          })
-        }
-      } else {
-        this.$swal({
-          title: 'แจ้งเตือน',
-          text: 'ช่วงเวลานี้มีการนัดแล้ว',
-          icon: 'error',
-          confirmButtonText: 'ตกลง',
+      this.datetime_check = ''
+      axios
+        .post(`${this.$axios.defaults.baseURL}check_event_duplicate.php`, {
+          starttime: moment(info.start).locale('th').format('Y-M-D HH:mm:ss'),
+          endtime: moment(info.end).locale('th').format('Y-M-D HH:mm:ss'),
+          id: info.resource.id,
+          state: '1',
         })
-      }
+        .then((response) => {
+          // alert(JSON.stringify(response.data))
+          // คืนค่ามาเป็น this.datetime_check จาก function check_event ส่งค่า เวลากับ id คนนวดไปเช็ค
+          // เช็คว่ามีการจองแล้วหรือยัง
+          if (response.data == '') {
+            if (
+              // check เวลาเที่ยง ไม่ให้จอง
+              moment(info.start).locale('th').format('HH:mm:ss') != '12:00:00'
+              //&&
+              //check ว่าถ้าเกินเวลามาแล้วไม่รับ
+              // moment().locale('th').format('HH:mm:ss') <=
+              //   moment(info.start).locale('th').format('HH:mm:ss')
+            ) {
+              this.datetime_check = ''
+              this.$swal({
+                title: 'การจองสิทธินวด',
+                text:
+                  'ท่านต้องการจองสิทธิช่วงเวลา' +
+                  moment(info.start).locale('th').format('HH:mm') +
+                  ' น ' +
+                  ' ถึง ' +
+                  moment(info.end).locale('th').format('HH:mm') +
+                  ' น หรือไม่',
+                footer:
+                  '<h3>' +
+                  'HN' +
+                  ' : ' +
+                  this.hn +
+                  '   ' +
+                  'เลขบัตรประชาชน' +
+                  ' : ' +
+                  this.idcard +
+                  '</h3>',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'จองสิทธิ',
+                confirmButtonColor: '#069A8E',
+                cancelButtonText: 'ยกเลิก',
+                cancelButtonColor: '#d33',
+                showCloseButton: true,
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  axios
+                    .post(`${this.$axios.defaults.baseURL}event_add.php`, {
+                      hn: this.hn,
+                      start: moment(info.start)
+                        .locale('th')
+                        .format('Y-M-D HH:mm:ss'),
+                      end: moment(info.end)
+                        .locale('th')
+                        .format('Y-M-D HH:mm:ss'),
+                      resourceid: info.resource.id,
+                      idcard: this.idcard,
+                      state: '1', //สถานะ 1 ปกติ 2 ลบ
+                    })
+                    .then((response) => {
+                      this.message = response.data
+                      if (this.message[0].message === 'เพิ่มข้อมูลสำเร็จ') {
+                        this.$swal({
+                          title: 'สถานะการจอง',
+                          text: จองสำเร็จ,
+                          icon: 'success',
+                          confirmButtonText: 'ปิด',
+                          confirmButtonColor: '#47B5FF',
+                        })
+                        this.fecth_event()
+                      } else {
+                        this.$swal({
+                          title: 'สถานะการจอง',
+                          text: ไม่สามารถจองได้,
+                          icon: 'error',
+                          confirmButtonText: 'ปิด',
+                          confirmButtonColor: '#47B5FF',
+                        })
+                      }
+                    })
+                }
+              })
+            } else {
+              this.$swal({
+                title: 'แจ้งเตือน',
+                text: 'ไม่สามรถจองได้เนื่องจากเวลาปัจจุบันเกินช่วงเวลาที่จะจองหรือมีการจองในเวลาพักเที่ยง',
+                icon: 'error',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#47B5FF',
+              })
+              this.datetime_check = ''
+            }
+          } else {
+            this.$swal({
+              title: 'แจ้งเตือน',
+              text: 'ช่วงเวลานี้มีการจองแล้ว',
+              icon: 'error',
+              confirmButtonText: 'ตกลง',
+              confirmButtonColor: '#47B5FF',
+            })
+            this.datetime_check = ''
+          }
+        })
     },
-
+    //เลือกรายการที่มีอยู่แล้วมาแสดง
     eventClick: function (info) {
       // alert(info.event.title)
 
-      alert(moment(info.event.start).locale('th').format('HH:mm'))
-      //alert(JSON.stringify(info.event))
-      // alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY)
-      // alert('View: ' + info.view.type)
+      // alert(moment(info.event.start).locale('th').format('HH:mm'))
+      // alert(JSON.stringify(info.event))
+
+      axios
+        .post(`${this.$axios.defaults.baseURL}check_id_delete.php`, {
+          id: info.event.id,
+        })
+        .then((response) => {
+          this.id_delete = response.data
+
+          // alert(id_delete[0].idcard)
+          // alert(id_delete[0].hn)
+
+          if (
+            this.id_delete[0].idcard == this.idcard &&
+            this.id_delete[0].hn == this.hn
+          ) {
+            this.$swal({
+              title: '<strong>สถานะ <u>จองแล้ว</u></strong>',
+              text:
+                'ช่วงเวลา ' +
+                moment(info.event.start).locale('th').format('HH:mm') +
+                '-' +
+                moment(info.event.end).locale('th').format('HH:mm') +
+                ' ' +
+                'ท่านต้องการจะลบหรือไม่',
+              footer:
+                '<h3>' +
+                'HN' +
+                ' : ' +
+                this.hn +
+                '   ' +
+                'เลขบัตรประชาชน' +
+                ' : ' +
+                this.idcard +
+                '</h3>',
+              icon: 'info',
+              showCancelButton: true,
+              confirmButtonText: 'เลิกจอง',
+              confirmButtonColor: '#47B5FF',
+              cancelButtonText: 'ยกเลิก',
+              cancelButtonColor: '#d33',
+              showCloseButton: true,
+            }).then((result) => {
+              if (result.isConfirmed) {
+                axios
+                  .put(`${this.$axios.defaults.baseURL}event_delete.php`, {
+                    id: info.event.id,
+                    hn: this.hn,
+                  })
+                  .then((response) => {
+                    this.message = response.data
+                    if (this.message[0].message === 'แก้ไขข้อมูลสำเร็จ') {
+                      this.$swal({
+                        title: 'สถานะการยกเลิก',
+                        text: 'ยกเลิกการจองสำเร็จ',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#47B5FF',
+                      })
+                      this.fecth_event()
+                    } else {
+                      this.$swal({
+                        title: 'สถานะการเพิ่ม',
+                        text: this.message[0].message,
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#47B5FF',
+                      })
+                    }
+                  })
+              }
+            })
+          } else {
+            // alert(info.event.id)
+            this.$swal({
+              title: '<strong>สถานะ <u>จองแล้ว</u></strong>',
+              text:
+                'ช่วงเวลา ' +
+                moment(info.event.start).locale('th').format('HH:mm') +
+                '-' +
+                moment(info.event.end).locale('th').format('HH:mm'),
+
+              icon: 'info',
+              confirmButtonText: 'ตกลง',
+              confirmButtonColor: '#47B5FF',
+              showCloseButton: true,
+            })
+          }
+        })
     },
     //doctor
     async fecth_doctor() {
@@ -296,6 +421,7 @@ export default {
       // setInterval(this.fecth_event(), 15000)
       this.fecth_event()
     },
+    // checkว่าในช่วงเวลานี้มีการจองไว้แล้วยัง
     async check_event(datetime, id) {
       // alert(time)
       // alert(id)
@@ -306,7 +432,7 @@ export default {
         })
         .then((response) => {
           this.datetime_check = response.data[0].id
-          // alert(this.datetime_check)
+          alert(this.datetime_check)
         })
     },
   },
