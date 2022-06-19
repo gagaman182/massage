@@ -4,7 +4,9 @@
       <v-col cols="12">
         <v-card outlined>
           <v-card-text>
-            <h2><v-icon medium>mdi-account </v-icon>ข้อมูลเจ้าหน้าที่</h2>
+            <h2>
+              <v-icon medium class="mr-2">mdi-account </v-icon>ข้อมูลเจ้าหน้าที่
+            </h2>
             <h4 v-if="btneditandremove" class="red--text">ไอดี: {{ id }}</h4>
             <v-divider class="mt-4 mb-4" />
             <v-row>
@@ -132,7 +134,7 @@
 <script>
 import axios from 'axios'
 export default {
-  name: 'survey_data',
+  name: 'doctor',
   data: () => ({
     search: '',
 
@@ -141,7 +143,6 @@ export default {
       {
         text: '#',
         value: 'num',
-        hidden: true,
       },
       {
         text: 'ไอดี',
@@ -242,7 +243,6 @@ export default {
     },
     //ลบ ข่อมูล
     removedata() {
-      alert(this.num)
       if (!this.num) {
         this.$swal({
           title: 'แจ้งเตือน',

@@ -9,20 +9,15 @@ doctor.num,
 	doctor.id,
 	doctor.title,
 	doctor.leaves,
-  doctor.code,
-	dayofweek( now( ) ) AS dayweek,
-CASE
-	
-	WHEN LEAVES = dayofweek( now( ) ) THEN
-	'n' ELSE 'y' 
-	END AS leaveday 
+  doctor.code
+
 FROM
 	doctor
-	LEFT JOIN leave_doctor ON doctor.id = leave_doctor.resourceId 
+	LEFT JOIN (select * from leave_doctor where leavedate = CURRENT_DATE)leave_doctor ON doctor.id = leave_doctor.resourceId 
 	where case when leave_doctor.leavedate = DATE_FORMAT(CURRENT_DATE,'%Y-%m-%d')	then 'n' else 'y' end <> 'n'
 	
 ORDER BY
-doctor.id
+doctor.num
 	
    ";
 
@@ -38,8 +33,8 @@ if ($result = mysqli_query($conn, $sql)) {
     $a['id'] = (int)$row['id'];
     $a['title'] = $row['title'];
     $a['leaves'] = $row['leaves'];
-    $a['dayweek'] = $row['dayweek'];
-    $a['leaveday'] = $row['leaveday'];
+    // $a['dayweek'] = $row['dayweek'];
+    // $a['leaveday'] = $row['leaveday'];
     $a['code'] = $row['code'];
 
 
