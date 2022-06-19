@@ -1,17 +1,46 @@
 <template>
   <v-row>
     <v-col cols="12">
-      <v-toolbar height="150" color="#1363DF">
-        <v-toolbar-title class="text-h5 white--text ml-6 mt-2">
-          ระบบจองบริการแพทย์แผนไทย บริการนวด เพื่อการบำบัดรักษาโรค
-        </v-toolbar-title>
-      </v-toolbar>
-
-      <!-- <v-card color="#1363DF">
-        <v-card-title class="headline"> ระบบจองบริการแพทย์แผนไทย </v-card-title>
-      </v-card> -->
+      <v-card outlined>
+        <v-card-text>
+          <v-toolbar height="100" color="#577BC1" class="white--text">
+            <v-icon class="icons"  color="white">
+              mdi-microsoft-excel
+            </v-icon>
+            <v-toolbar-title >
+               ระบบจองบริการแพทย์แผนไทย บริการนวด เพื่อการบำบัดรักษาโรค
+            </v-toolbar-title>
+           </v-toolbar>
+        </v-card-text>
+     </v-card>
     </v-col>
-    <v-col cols="12">
+    <v-col cols="12" >
+      <v-card outlined>
+        <v-card-text>
+        <v-alert border="left" colored-border color="#EEE6CE" elevation="2">
+          <div class="d-flex flex-row">
+            <h3 class="font-weight-black subhead mr-4 pt-2">วันที่เปิดให้จอง</h3>
+            <v-chip color="#8FBDD3" text-color="white" class="mt-0">
+              <h3 class="font-weight-black ">{{ opddate_now }}</h3>
+            </v-chip>
+            
+          </div>
+        </v-alert>
+        <v-alert border="left" colored-border color="#577BC1" elevation="2">
+             <v-icon class="icons mr-2"  >
+             mdi-account-voice 
+            </v-icon>
+            <!-- <h3 class="font-weight-black subhead">วันที่ออกปฏิบัติงาน</h3> -->
+              <u>ขั้นตอนการจอง</u></br>
+              <p class="ml-9 mb-0 mt-0 pt-0 pb-0">สามารถเลือกช่วงเวลาที่ต้องการจองแล้วตอบตกลงเพื่อยืนยันการจอง</p></br>
+              <p class="ml-9 mb-0 mt-0 pt-0 pb-0">สามารถจองนวดได้ในวันปัจจุบันเท่านั้น</p></br>
+              <p class="ml-9 mb-0 mt-0 pt-0 pb-0 red--text">ไม่สามารถจองในเวลาเที่ยง และต้องจองล่วงหน้าก่อนเวลานวด </p></br>
+        </v-alert>
+        </v-card-text>
+      </v-card>
+    </v-col>
+      
+  <v-col cols="12">
       <v-card>
         <v-card-text class="pl-10 pr-10 pt-10 pb-10 eventmouse">
           <FullCalendar
@@ -22,6 +51,19 @@
         </v-card-text>
       </v-card>
     </v-col>
+    <v-row>
+      <v-dialog v-model="dialog_process" hide-overlay persistent width="300">
+        <v-card color="#C499BA" dark>
+          <v-card-text>
+            กำลังโหลดข้อมูล...
+            <v-progress-linear
+              indeterminate
+              color="white"
+              class="mb-0"
+            ></v-progress-linear>
+          </v-card-text>
+        </v-card> </v-dialog
+    ></v-row>
   </v-row>
 </template>
 
@@ -40,6 +82,12 @@ export default {
   name: 'IndexPage',
   data() {
     return {
+      opddate_now: new Date().toLocaleDateString('th-TH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long',
+      }),
       dateuse: new Date().toISOString().substr(0, 10),
       dateshow: false,
       doctor: '',
@@ -48,6 +96,7 @@ export default {
       id_delete: '',
       datetime_check: '',
       message: '',
+      dialog_process: false,
       calendarOptions: {
         plugins: [resourceTimelinePlugin, interactionPlugin],
         initialView: 'resourceTimeline',
@@ -150,10 +199,13 @@ export default {
   // },
   mounted() {
     this.dateshow = true
+    this.dialog_process = true
     this.calendarOptions.visibleRange.start = this.dateuse
     this.calendarOptions.visibleRange.end = this.dateuse
     this.fecth_doctor()
+
     this.fecth_event()
+    this.dialog_process = false
   },
   components: {
     FullCalendar,
@@ -174,6 +226,7 @@ export default {
     },
     //เลือกช่องว่าง
     selectevent: function (info) {
+      this.dialog_process = true
       // console.log(info)
       //   start,
       // end,
@@ -212,11 +265,11 @@ export default {
           if (response.data == '') {
             if (
               // check เวลาเที่ยง ไม่ให้จอง
-              moment(info.start).locale('th').format('HH:mm:ss') != '12:00:00'
-              //&&
+              moment(info.start).locale('th').format('HH:mm:ss') !=
+                '12:00:00' &&
               //check ว่าถ้าเกินเวลามาแล้วไม่รับ
-              // moment().locale('th').format('HH:mm:ss') <=
-              //   moment(info.start).locale('th').format('HH:mm:ss')
+              moment().locale('th').format('HH:mm:ss') <=
+                moment(info.start).locale('th').format('HH:mm:ss')
             ) {
               this.datetime_check = ''
               this.$swal({
@@ -271,6 +324,7 @@ export default {
                           confirmButtonColor: '#47B5FF',
                         })
                         this.fecth_event()
+                        this.dialog_process = false
                       } else {
                         this.$swal({
                           title: 'สถานะการจอง',
@@ -292,6 +346,7 @@ export default {
                 confirmButtonColor: '#47B5FF',
               })
               this.datetime_check = ''
+              this.dialog_process = false
             }
           } else {
             this.$swal({
@@ -302,6 +357,7 @@ export default {
               confirmButtonColor: '#47B5FF',
             })
             this.datetime_check = ''
+            this.dialog_process = false
           }
         })
     },
@@ -311,7 +367,7 @@ export default {
 
       // alert(moment(info.event.start).locale('th').format('HH:mm'))
       // alert(JSON.stringify(info.event))
-
+      this.dialog_process = true
       axios
         .post(`${this.$axios.defaults.baseURL}check_id_delete.php`, {
           id: info.event.id,
@@ -370,6 +426,7 @@ export default {
                         confirmButtonColor: '#47B5FF',
                       })
                       this.fecth_event()
+                      this.dialog_process = false
                     } else {
                       this.$swal({
                         title: 'สถานะการเพิ่ม',
@@ -378,6 +435,7 @@ export default {
                         confirmButtonText: 'ตกลง',
                         confirmButtonColor: '#47B5FF',
                       })
+                      this.dialog_process = false
                     }
                   })
               }
@@ -397,6 +455,7 @@ export default {
               confirmButtonColor: '#47B5FF',
               showCloseButton: true,
             })
+            this.dialog_process = false
           }
         })
     },

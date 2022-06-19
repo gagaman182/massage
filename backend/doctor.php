@@ -5,9 +5,11 @@ header('Content-Type: text/html; charset=utf-8');
 include 'conn.php';
 
 $sql = "SELECT
+doctor.num,
 	doctor.id,
 	doctor.title,
 	doctor.leaves,
+  doctor.code,
 	dayofweek( now( ) ) AS dayweek,
 CASE
 	
@@ -32,12 +34,13 @@ if ($result = mysqli_query($conn, $sql)) {
   //   array_push($return_arr, $row);
   // }
   while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-
+    $a['num'] = (int)$row['num'];
     $a['id'] = (int)$row['id'];
     $a['title'] = $row['title'];
     $a['leaves'] = $row['leaves'];
     $a['dayweek'] = $row['dayweek'];
     $a['leaveday'] = $row['leaveday'];
+    $a['code'] = $row['code'];
 
 
     array_push($return_arr, $a);
